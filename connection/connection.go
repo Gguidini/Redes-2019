@@ -10,6 +10,10 @@ import (
 	"github.com/Redes-2019/userinterface"
 )
 
+// IrcClient é o cliente IRC
+// Ele possui um socket TCP ligado ao servidor IRC
+// E as informações de conexão e usuário.
+// Também possui channels de input e output
 type IrcClient struct {
 	Socket   net.Conn
 	UserInfo userinterface.User
@@ -17,6 +21,7 @@ type IrcClient struct {
 	data     chan string
 }
 
+// NewClient retorna um novo IrcClient
 func NewClient(socket net.Conn, userInfo userinterface.User, connInfo userinterface.ConnInfo) *IrcClient {
 	return &IrcClient{socket, userInfo, connInfo, make(chan string, 100)}
 }
@@ -107,6 +112,9 @@ func (client *IrcClient) Connect() bool {
 	return true
 }
 
+// Receive recebe as mensagens do servidor e as passa para o display.
+// Caso receba uma mensagem de ERROR ou KILL fecha o socket
+// Caso receba uma mensagem PING, envia o PONG
 func (client *IrcClient) Receive() {
 	readSocket := bufio.NewReader(client.Socket)
 	for {
@@ -145,8 +153,8 @@ func (client *IrcClient) Receive() {
 	fmt.Println("Stopped listening.")
 }
 
-// Faz o handle da conexão e mandda a mensagem
-// pro servidor dependendo do comando
+// HandleConnection envia comandos para o servidor pelo socket.
+// Os comandos são inseridos pelo usuário.
 func HandleConnection(command []string) {
 	fmt.Println("TODO: handler")
 }
