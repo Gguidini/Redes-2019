@@ -191,6 +191,8 @@ func (client *IrcClient) HandleConnection(command []string) {
 		} else {
 			cmdToSend = namesCmd("")
 		}
+	case "/ison":
+		cmdToSend = isonCmd(command[1:])
 	}
 
 	client.Socket.Write([]byte(cmdToSend))

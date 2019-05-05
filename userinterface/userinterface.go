@@ -93,7 +93,7 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [9]string
+	var validCommands [10]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
@@ -103,6 +103,7 @@ func validateCommand(command string) bool {
 	validCommands[6] = "/topic"
 	validCommands[7] = "/invite"
 	validCommands[8] = "/names"
+	validCommands[9] = "/ison"
 	for _, item := range validCommands {
 		if item == command {
 			return true
@@ -242,7 +243,7 @@ Separe canais APENAS por vírgula (sem espaço)`
 		if len(command) == 3 {
 			result = true
 		} else {
-			err = `Número incorreto de parâmetros.
+			err = `Número incorreto de parâmetros. Deveria ser 2.
 /invite <nickname> <channel>`
 		}
 
@@ -254,9 +255,15 @@ Separe canais APENAS por vírgula (sem espaço)`
 		// Command: /away
 		// Parameters: [message]
 
-		// TODO: Command ISON
+	case "/ison":
 		// Command: /ison
 		// Parameters: <nickname>{<space><nickname>}
+		if len(command) > 2 {
+			result = true
+		} else {
+			err = `Número incorreto de parâmetros. Deveria ser pelo menos 1.
+/ison <nickname>{<space><nickname>}`
+		}
 	}
 
 	return result, err
@@ -273,6 +280,7 @@ func displayHelp() {
 		"/topic <channel> [<topic>] - Mostra o tópico de <channel>. Se <topic estiver presente, altera tópico de <channel> para <topic>.",
 		"/invite <nickname> <channel> - Convida <nickname> para o canal <channel>.",
 		"/names [<channel>{,<channel>}] - Lista usuários disponíveis no canal. Se nenhum canal é informado, lista todos os usuários visíveis.",
+		"/ison <nickname>{<space><nickname>} - Verifica se <nickname> está ON",
 	}
 
 	for _, help := range availableCommands {

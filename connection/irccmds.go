@@ -74,3 +74,7 @@ func namesCmd(channel string) string {
 	cmd += CRLF
 	return cmd
 }
+
+func isonCmd(nicks []string) string {
+	return "ISON " + strings.Join(nicks, " ") + CRLF
+}
