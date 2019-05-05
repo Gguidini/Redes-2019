@@ -97,7 +97,7 @@ func (client *IrcClient) Connect() bool {
 	msg, _ := reader.ReadString('\n')
 	msgPieces := strings.Fields(strings.TrimRight(msg, CRLF))
 	if msgPieces[1] != "001" {
-		fmt.Println("Erro de Autenticação:", strings.Join(msgPieces[1:], " "))
+		fmt.Println("[Auth Error]", strings.Join(msgPieces[1:], " "))
 		client.Socket.Close()
 		return false
 	}
@@ -122,15 +122,15 @@ func (client *IrcClient) ListenServer() {
 		message, err := readSocket.ReadString('\n')
 		message = strings.TrimRight(message, "\r\n")
 		if err != nil {
-			fmt.Println("Erro lendo so socket:", err)
+			fmt.Println("[Fatal Error]", err)
 			fmt.Println("Fechando conexão")
 			client.Socket.Close()
 			close(client.DataFromServer)
 			break
 		}
-		// Mensages que iniciam com prefixo não são erros
-		// Então são mostradas
-		if message[0] == ':' {
+		// Mensages que iniciam com prefixo não são erros, então são mostradas
+		// Mensagens cujo prefixo é o Nickname foram enviadas por nós.
+		if message[0] == ':' && (!strings.HasPrefix(string(message[0]), ":"+client.UserInfo.Nick+"!")) {
 			client.DataFromServer <- message[1:]
 		}
 		// Mensagens que não iniciam com prefixo podem ser erros ou pings
@@ -144,7 +144,7 @@ func (client *IrcClient) ListenServer() {
 			// Mensagens de ERROR significam que algo deu errado e o servidor fechou a conexão
 			// KILL significa que a conexão foi fechada por algum operador
 			// Logo, o cliente precisará se reconectar.
-			fmt.Println("Fatal Error:", message)
+			fmt.Println("[Fatal Error]", message)
 			client.Socket.Close()
 			close(client.DataFromServer)
 			break
@@ -182,6 +182,5 @@ func (client *IrcClient) HandleConnection(command []string) {
 	case "/msg":
 		cmdToSend = msgCmd(command[1], command[2:])
 	}
-	fmt.Println("[Sending]", cmdToSend)
 	client.Socket.Write([]byte(cmdToSend))
 }
