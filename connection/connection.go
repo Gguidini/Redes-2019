@@ -183,6 +183,8 @@ func (client *IrcClient) HandleConnection(command []string) {
 		cmdToSend = msgCmd(command[1], command[2:])
 	case "/topic":
 		cmdToSend = topicCmd(command[1], strings.Join(command[2:], " "))
+	case "/invite":
+		cmdToSend = inviteCmd(command[1], command[2])
 	}
 
 	client.Socket.Write([]byte(cmdToSend))

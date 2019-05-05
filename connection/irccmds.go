@@ -61,3 +61,7 @@ func topicCmd(channel, topic string) string {
 	cmd += CRLF
 	return cmd
 }
+
+func inviteCmd(nick, channel string) string {
+	return "INIVTE " + nick + " " + channel + CRLF
+}
