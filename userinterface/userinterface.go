@@ -258,7 +258,7 @@ Separe canais APENAS por vírgula (sem espaço)`
 	case "/ison":
 		// Command: /ison
 		// Parameters: <nickname>{<space><nickname>}
-		if len(command) > 2 {
+		if len(command) > 1 {
 			result = true
 		} else {
 			err = `Número incorreto de parâmetros. Deveria ser pelo menos 1.
