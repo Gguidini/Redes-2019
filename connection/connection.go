@@ -86,3 +86,10 @@ func (client *IrcClient) Receive() {
 		}
 	}
 }
+
+// Faz o handle da conexão e mandda a mensagem 
+// pro servidor dependendo do comando
+
+func HandleConnection(command []string) {
+	fmt.Println("TODO: handler")
+}

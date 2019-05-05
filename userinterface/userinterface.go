@@ -125,11 +125,42 @@ func ReadCommand(channel string) []string {
 	}
 }
 
-// // Verifica a estrutura de cada comando
-// // /join <#channel>
-// // /list  
-// // /quit <message>
-// // /msg <#channel>|<user> <message>
-// func ValidateCommand(command []string ) bool {
+// Verifica a estrutura de cada comando
+// /join <#channel>
+// /list  
+// /quit <message>
+// /msg <#channel>|<user> <message>
+func VerifyStructure(command []string ) bool {
+	var result bool = false
+	switch command[0] {
+	case "/join":
+		if len(command) > 1  {
+			channel := string(command[1])
+			if (channel[0] == '#' && len(channel) > 1) {
+				result = true
+			}
+		}
+		
+	case "/list":
+		result = true
 
-// }
+	case "/quit":
+		if len(command) > 1 {
+			message := string(command[1])
+			if (len(message) > 0) {
+				result = true
+			}
+		}
+		
+	case "/msg":
+		if len(command) > 2 {
+			target := string(command[1])
+			message := string(command[2])
+			if (len(target) > 1 && len(message) > 1) {
+				result = true
+			}
+		}
+	}
+
+	return result
+}
