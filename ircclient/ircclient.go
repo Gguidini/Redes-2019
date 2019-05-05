@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"github.com/Redes-2019/userinterface"
-	"github.com/Redes-2019/connection"
-)
 
+	"github.com/Redes-2019/connection"
+	"github.com/Redes-2019/userinterface"
+)
 
 func main() {
 
@@ -35,4 +35,5 @@ func main() {
 		connSocket.Write([]byte(message))
 	}
 
+	fmt.Println("Client disconnected. Terminating.")
 }
