@@ -83,3 +83,53 @@ func ReadUserData() (User, ConnInfo) {
 	newConnInfo := ConnInfo{server, numPort, pass, passFlag}
 	return newUser, newConnInfo
 }
+
+
+// Faz o parse do comando em um array de strings
+
+func parseCommand(command string) []string {
+	parsedString := strings.Split(strings.ToLower(command)," ")
+	return parsedString
+}
+
+// Valida o comando recebido
+func validateCommand(command string) bool {
+	var validCommands [4]string
+	validCommands[0] = "/join" 
+	validCommands[1] = "/list"
+	validCommands[2] = "/quit"
+	validCommands[3] = "/msg"
+	for _, item := range(validCommands) {
+		if item == command {
+			return true
+		}
+	}
+	return false
+}
+
+// Lê o comando recebido da main
+func ReadCommand(channel string) []string {
+	reader := bufio.NewReader(os.Stdin)
+
+	// Imprime o canal que o usuário se encontra,
+	// ou nenhum se ele não está num canal
+	fmt.Print(channel)
+	command, _ := reader.ReadString('\n')
+	command = strings.TrimRight(command, "\n")
+	parsedCommand := parseCommand(command)
+	isValid := validateCommand(parsedCommand[0])
+	if isValid == true {
+		return parsedCommand
+	} else {
+		return nil
+	}
+}
+
+// // Verifica a estrutura de cada comando
+// // /join <#channel>
+// // /list  
+// // /quit <message>
+// // /msg <#channel>|<user> <message>
+// func ValidateCommand(command []string ) bool {
+
+// }

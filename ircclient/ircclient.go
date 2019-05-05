@@ -16,6 +16,18 @@ func main() {
 	fmt.Println("Iniciando Cliente.")
 	fmt.Println("Identificando usuário")
 	user, conn := userinterface.ReadUserData()
+	channel := "> "
+	// Entra em loop para ler os comandos do usuário
+	for {
+		command := userinterface.ReadCommand(channel)
+		if command == nil {
+			fmt.Println("Erro: comando invalido")
+			} else {
+				fmt.Println(command)
+				// ircCommand := userinterface.VerifyStructure()
+
+			}
+	}
 
 	// Conecta ao servidor
 	connSocket := connection.OpenSocket(conn)
