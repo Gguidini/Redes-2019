@@ -93,7 +93,7 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [10]string
+	var validCommands [11]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
@@ -104,6 +104,7 @@ func validateCommand(command string) bool {
 	validCommands[7] = "/invite"
 	validCommands[8] = "/names"
 	validCommands[9] = "/ison"
+	validCommands[10] = "/away"
 	for _, item := range validCommands {
 		if item == command {
 			return true
@@ -251,9 +252,10 @@ Separe canais APENAS por vírgula (sem espaço)`
 		// Command: /who
 		// Parameters: [<name> [<o>]]
 
-		// TODO: Command AWAY
+	case "/away":
 		// Command: /away
 		// Parameters: [message]
+		result = true
 
 	case "/ison":
 		// Command: /ison
@@ -281,6 +283,7 @@ func displayHelp() {
 		"/invite <nickname> <channel> - Convida <nickname> para o canal <channel>.",
 		"/names [<channel>{,<channel>}] - Lista usuários disponíveis no canal. Se nenhum canal é informado, lista todos os usuários visíveis.",
 		"/ison <nickname>{<space><nickname>} - Verifica se <nickname> está ON",
+		"/away [message] - Define usuário como AWAY, se tiver uma mensagem, ou cancela AWAY, se não houver mensagem.",
 	}
 
 	for _, help := range availableCommands {

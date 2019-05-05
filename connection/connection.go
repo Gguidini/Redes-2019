@@ -20,11 +20,12 @@ type IrcClient struct {
 	connInfo       userinterface.ConnInfo
 	DataFromServer chan string
 	DataFromUser   chan []string
+	isAway         bool
 }
 
 // NewClient retorna um novo IrcClient
 func NewClient(socket net.Conn, userInfo userinterface.User, connInfo userinterface.ConnInfo) *IrcClient {
-	return &IrcClient{socket, userInfo, connInfo, make(chan string, 100), make(chan []string, 100)}
+	return &IrcClient{socket, userInfo, connInfo, make(chan string, 100), make(chan []string, 100), false}
 }
 
 // OpenSocket abre uma conexão com o servidor IRC
@@ -193,6 +194,16 @@ func (client *IrcClient) HandleConnection(command []string) {
 		}
 	case "/ison":
 		cmdToSend = isonCmd(command[1:])
+	case "/away":
+		if len(command) == 1 && !client.isAway {
+			// Tentado enviar desAWAY command sem estar AWAY
+			return
+		} else if len(command) == 1 && client.isAway {
+			client.isAway = true
+			cmdToSend = awayCmd(nil)
+		} else {
+			cmdToSend = awayCmd(command[1:])
+		}
 	}
 
 	client.Socket.Write([]byte(cmdToSend))

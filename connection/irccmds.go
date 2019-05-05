@@ -78,3 +78,10 @@ func namesCmd(channel string) string {
 func isonCmd(nicks []string) string {
 	return "ISON " + strings.Join(nicks, " ") + CRLF
 }
+
+func awayCmd(msg []string) string {
+	if msg == nil {
+		return "AWAY" + CRLF
+	}
+	return "AWAY :" + strings.Join(msg, " ") + CRLF
+}
