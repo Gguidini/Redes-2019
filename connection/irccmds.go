@@ -16,13 +16,12 @@ func nickCmd(nick string) string {
 	return "NICK " + nick + CRLF
 }
 
-func userCmd(nick, server, host string, user []string) string {
+func userCmd(nick, server, host, user string) string {
 	cmd := "USER " +
 		nick + " " +
 		host + " " +
 		server + " :" +
-		strings.Join(user, " ") +
-		CRLF
+		user + CRLF
 	return cmd
 }
 
