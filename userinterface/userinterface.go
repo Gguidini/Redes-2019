@@ -35,29 +35,35 @@ type ConnInfo struct {
 // As informações são aquelas da struct User e ConnInfo
 func ReadUserData() (User, ConnInfo) {
 	reader := bufio.NewReader(os.Stdin)
+	
 	// Username
 	fmt.Print("Username: ")
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimRight(username, "\n")
+	
 	// Nickname
 	fmt.Print("Nick: ")
 	nick, _ := reader.ReadString('\n')
 	nick = strings.TrimRight(nick, "\n")
+	
 	// Server to connect
 	fmt.Print("Remote server name: ")
 	server, _ := reader.ReadString('\n')
 	server = strings.TrimRight(server, "\n")
+	
 	// Connection port
 	fmt.Print("Porta da conexão: ")
 	port, _ := reader.ReadString('\n')
 	port = strings.TrimRight(port, "\n")
 	numPort, _ := strconv.Atoi(port)
+	
 	// Connection Password, if any
 	fmt.Print("O servidor possui uma senha? [s/n] ")
 	pass, _ := reader.ReadString('\n')
 	pass = strings.TrimRight(pass, "\n")
 	pass = strings.TrimLeft(pass, "\n")
 	passFlag := false
+	
 	if strings.ToLower(pass) == "s" {
 		passFlag = true
 		fmt.Print("Senha: ")
