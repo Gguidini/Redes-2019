@@ -93,13 +93,14 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [6]string
+	var validCommands [7]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
 	validCommands[3] = "/msg"
 	validCommands[4] = "/part"
 	validCommands[5] = "/help"
+	validCommands[6] = "/topic"
 	for _, item := range validCommands {
 		if item == command {
 			return true
@@ -150,8 +151,8 @@ func VerifyStructure(command []string) (bool, string) {
 			}
 		} else {
 			err = `Número errado de parâmetros. Deveria ser 1 ou 2.
-			/join <channel>{,<channel>} [<key>{,<key>}]
-			Separe canais e keys APENAS por vírgula (sem espaço)`
+/join <channel>{,<channel>} [<key>{,<key>}]
+Separe canais e keys APENAS por vírgula (sem espaço)`
 		}
 
 	case "/list":
@@ -161,8 +162,8 @@ func VerifyStructure(command []string) (bool, string) {
 			result = true
 		} else {
 			err = `Número errado de parâmetros. Deveria ser 0 ou 1.
-			/list [<channel>{,<channel>}]
-			Separe canais APENAS por vírgula (sem espaço)`
+/list [<channel>{,<channel>}]
+Separe canais APENAS por vírgula (sem espaço)`
 		}
 
 	case "/quit":
@@ -173,8 +174,8 @@ func VerifyStructure(command []string) (bool, string) {
 			}
 		} else {
 			err = `Número errado de parâmetros. Deveria ser 1.
-			/quit <message>.
-			Mensagem de quit é obrigatória.`
+/quit <message>.
+Mensagem de quit é obrigatória.`
 		}
 
 	case "/msg":
@@ -187,8 +188,8 @@ func VerifyStructure(command []string) (bool, string) {
 			}
 		} else {
 			err = `Número errado de parâmetros. Deveria ser 2.
-			/msg <receiver>{,<receiver>} <text to be sent>
-			Separe receivers APENAS por vírgula (sem espaço)`
+/msg <receiver>{,<receiver>} <text to be sent>
+Separe receivers APENAS por vírgula (sem espaço)`
 		}
 
 	case "/part":
@@ -198,8 +199,8 @@ func VerifyStructure(command []string) (bool, string) {
 			result = true
 		} else {
 			err = `Número errado de parâmetros. Deveria ser 1.
-			/part <channel>{,<channel>}
-			Separe canais APENAS por vírgula (sem espaço)`
+/part <channel>{,<channel>}
+Separe canais APENAS por vírgula (sem espaço)`
 		}
 
 		// TODO: Command MODE
@@ -207,9 +208,20 @@ func VerifyStructure(command []string) (bool, string) {
 		// Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>]	[<ban mask>]
 		// Parameters: <nickname> {[+|-]|i|w|s|o}
 
-		// TODO: Command TOPIC
+	case "/topic":
 		// Command: /topic
 		// Parameters: <channel> [<topic>]
+		if len(command) >= 2 {
+			channel := command[1]
+			if strings.Contains(channel, ",") {
+				err = "Apenas 1 canal pode ser informado.\n/topic <channel> [<topic>]"
+			} else {
+				result = true
+			}
+		} else {
+			err = `Número incorreto de parâmetros. Deveria ser 1 ou 2.
+/topic <channel> [<topic>]`
+		}
 
 		// TODO: Command NAMES
 		// Command: /names
@@ -242,7 +254,9 @@ func displayHelp() {
 		"/part <channel>{,<channel>} - Leaves <channel>",
 		"/list [<channel>{,<channel>}] - Displays visible channels, or info about <channel>.",
 		"/quit <quit message> - Terminates connection with server. Message is mandatory.",
-		"/msg <receiver>{,<receiver>} <text to be sent> - Sends message to <receiver>."}
+		"/msg <receiver>{,<receiver>} <text to be sent> - Sends message to <receiver>.",
+		"/topic <channel> [<topic>] - Mostra o tópico de <channel>. Se <topic estiver presente, altera tópico de <channel> para <topic>.",
+	}
 
 	for _, help := range availableCommands {
 		fmt.Println(help)

@@ -52,3 +52,12 @@ func listCmd(channel string) string {
 	}
 	return "LIST " + channel + CRLF
 }
+
+func topicCmd(channel, topic string) string {
+	cmd := "TOPIC " + channel
+	if topic != "" {
+		cmd += " " + topic
+	}
+	cmd += CRLF
+	return cmd
+}
