@@ -132,7 +132,15 @@ func ReadCommand(channel string) []string {
 func VerifyStructure(command []string) bool {
 	var result = false
 	switch command[0] {
+
+	// TODO: Add help command to list available commands
+	// Command: /help
+	// Parameters: none
+
 	case "/join":
+		// TODO: Fix join parsing to accept multiple channels and keys. Must be comma separated, no space
+		// Command: /join
+		// Parameters: <channel>{,<channel>} [<key>{,<key>}]
 		if len(command) > 1 {
 			channel := string(command[1])
 			if (channel[0] == '#' || channel[0] == '&') && len(channel) > 1 {
@@ -141,6 +149,8 @@ func VerifyStructure(command []string) bool {
 		}
 
 	case "/list":
+		// TODO: Accept multiple channels. Must be comma separated, no space
+		// Parameters: [<channel>{,<channel>}]
 		result = true
 
 	case "/quit":
@@ -152,6 +162,8 @@ func VerifyStructure(command []string) bool {
 		}
 
 	case "/msg":
+		// TODO: Accept multiple receivers. Must be comma separated, no space
+		// Parameters: <receiver>{,<receiver>} <text to be sent>
 		if len(command) > 2 {
 			target := string(command[1])
 			message := string(command[2])
@@ -160,9 +172,41 @@ func VerifyStructure(command []string) bool {
 			}
 		}
 	case "/part":
+		// TODO: Part parsing has to accept multiple channels. Must be comma separated, no space
+		// Comand: /part
+		// Parameters: <channel>{,<channel>}
 		if len(command) == 2 {
 			result = true
 		}
+
+		// TODO: Command MODE
+		// Comand: /mode
+		// Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>]	[<ban mask>]
+		// Parameters: <nickname> {[+|-]|i|w|s|o}
+
+		// TODO: Command TOPIC
+		// Command: /topic
+		// Parameters: <channel> [<topic>]
+
+		// TODO: Command NAMES
+		// Command: /names
+		// Parameters: [<channel>{,<channel>}]
+
+		// TODO: Command INVITE
+		// Command: /invite
+		// Parameters: <nickname> <channel>
+
+		// TODO: Command WHO
+		// Command: /who
+		// Parameters: [<name> [<o>]]
+
+		// TODO: Command AWAY
+		// Command: /away
+		// Parameters: [message]
+
+		// TODO: Command ISON
+		// Command: /ison
+		// Parameters: <nickname>{<space><nickname>}
 	}
 
 	return result
