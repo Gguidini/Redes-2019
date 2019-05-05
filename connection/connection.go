@@ -109,6 +109,11 @@ func (client *IrcClient) Receive() {
 			break
 		}
 	}
-
 	fmt.Println("Stopped listening.")
+}
+
+// Faz o handle da conexão e mandda a mensagem
+// pro servidor dependendo do comando
+func HandleConnection(command []string) {
+	fmt.Println("TODO: handler")
 }
