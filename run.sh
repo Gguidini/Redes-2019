@@ -6,6 +6,10 @@
 #	go
 #	bash
 
+# Parâmetros (só um deles)
+#	--run - executa o programa
+#	--install - gera um executável 'ircclient'
+
 SRCDIR=$GOPATH/src/github.com/Redes-2019
 OBJDIRS="userinterface connection"
 
@@ -14,6 +18,11 @@ for dir in $OBJDIRS ; do
 	go build $SRCDIR/$dir
 done;
 
-printf "\nRodando\n"
-
-go run $SRCDIR/ircclient
+if [[ $1 == '--run' ]]; then
+	printf "\nRodando\n"
+	go run $SRCDIR/ircclient
+fi; 
+if [[ $1 == '--install' ]]; then
+	printf "Gerando executável\n"
+	go install $SRCDIR/ircclient
+fi;
