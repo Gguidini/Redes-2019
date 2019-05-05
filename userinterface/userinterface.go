@@ -93,12 +93,13 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [5]string
+	var validCommands [6]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
 	validCommands[3] = "/msg"
 	validCommands[4] = "/part"
+	validCommands[5] = "/help"
 	for _, item := range validCommands {
 		if item == command {
 			return true
@@ -118,40 +119,51 @@ func ReadCommand(channel string) []string {
 	command = strings.TrimRight(command, "\r\n")
 	parsedCommand := parseCommand(command)
 	isValid := validateCommand(strings.ToLower(parsedCommand[0]))
-	if isValid == true {
+	if isValid {
 		return parsedCommand
 	}
 	return nil
 }
 
-// Verifica a estrutura de cada comando
-// /join <#channel>
-// /list
-// /quit <message>
-// /msg <#channel>|<user> <message>
-func VerifyStructure(command []string) bool {
+// VerifyStructure verifica a estrutura de comandos válidos.
+// Evita que comandos com erro sintático sejam enviados ao servidor.
+func VerifyStructure(command []string) (bool, string) {
 	var result = false
-	switch command[0] {
+	var err = ""
+	switch strings.ToLower(command[0]) {
 
-	// TODO: Add help command to list available commands
-	// Command: /help
-	// Parameters: none
+	case "/help":
+		// Command: /help
+		// Parameters: none
+		// Displays available commands
+		displayHelp()
 
 	case "/join":
-		// TODO: Fix join parsing to accept multiple channels and keys. Must be comma separated, no space
 		// Command: /join
 		// Parameters: <channel>{,<channel>} [<key>{,<key>}]
-		if len(command) > 1 {
+		if len(command) > 1 && len(command) <= 3 {
 			channel := string(command[1])
 			if (channel[0] == '#' || channel[0] == '&') && len(channel) > 1 {
 				result = true
+			} else {
+				err = "Canal informado possui nome inválido. Nomes de canais iniciam com '#' ou '&'."
 			}
+		} else {
+			err = `Número errado de parâmetros. Deveria ser 1 ou 2.
+			/join <channel>{,<channel>} [<key>{,<key>}]
+			Separe canais e keys APENAS por vírgula (sem espaço)`
 		}
 
 	case "/list":
-		// TODO: Accept multiple channels. Must be comma separated, no space
+		// Comand: /join
 		// Parameters: [<channel>{,<channel>}]
-		result = true
+		if len(command) <= 2 {
+			result = true
+		} else {
+			err = `Número errado de parâmetros. Deveria ser 0 ou 1.
+			/list [<channel>{,<channel>}]
+			Separe canais APENAS por vírgula (sem espaço)`
+		}
 
 	case "/quit":
 		if len(command) > 1 {
@@ -159,10 +171,13 @@ func VerifyStructure(command []string) bool {
 			if len(message) > 0 {
 				result = true
 			}
+		} else {
+			err = `Número errado de parâmetros. Deveria ser 1.
+			/quit <message>.
+			Mensagem de quit é obrigatória.`
 		}
 
 	case "/msg":
-		// TODO: Accept multiple receivers. Must be comma separated, no space
 		// Parameters: <receiver>{,<receiver>} <text to be sent>
 		if len(command) > 2 {
 			target := string(command[1])
@@ -170,13 +185,21 @@ func VerifyStructure(command []string) bool {
 			if len(target) > 1 && len(message) > 1 {
 				result = true
 			}
+		} else {
+			err = `Número errado de parâmetros. Deveria ser 2.
+			/msg <receiver>{,<receiver>} <text to be sent>
+			Separe receivers APENAS por vírgula (sem espaço)`
 		}
+
 	case "/part":
-		// TODO: Part parsing has to accept multiple channels. Must be comma separated, no space
 		// Comand: /part
 		// Parameters: <channel>{,<channel>}
 		if len(command) == 2 {
 			result = true
+		} else {
+			err = `Número errado de parâmetros. Deveria ser 1.
+			/part <channel>{,<channel>}
+			Separe canais APENAS por vírgula (sem espaço)`
 		}
 
 		// TODO: Command MODE
@@ -209,5 +232,19 @@ func VerifyStructure(command []string) bool {
 		// Parameters: <nickname>{<space><nickname>}
 	}
 
-	return result
+	return result, err
+}
+
+func displayHelp() {
+	availableCommands := []string{
+		"/help - Displays available commands",
+		"/join <channel>{,<channel>} [<key>{,<key>}] - Joins <channel using <key>.",
+		"/part <channel>{,<channel>} - Leaves <channel>",
+		"/list [<channel>{,<channel>}] - Displays visible channels, or info about <channel>.",
+		"/quit <quit message> - Terminates connection with server. Message is mandatory.",
+		"/msg <receiver>{,<receiver>} <text to be sent> - Sends message to <receiver>."}
+
+	for _, help := range availableCommands {
+		fmt.Println(help)
+	}
 }

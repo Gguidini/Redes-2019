@@ -24,6 +24,7 @@ func main() {
 
 	go client.ListenServer()
 	go listenUser(client)
+	fmt.Println("Use /help to display available commands.")
 	ok = true
 	for ok {
 		select {
@@ -49,9 +50,9 @@ func listenUser(client *connection.IrcClient) {
 		if command == nil {
 			fmt.Println("Erro: comando invalido")
 		} else {
-			validStructure := userinterface.VerifyStructure(command)
+			validStructure, err := userinterface.VerifyStructure(command)
 			if validStructure == false {
-				fmt.Println("Erro: Estrutura de comando incorreta")
+				fmt.Println(err)
 			} else {
 				client.DataFromUser <- command
 			}
