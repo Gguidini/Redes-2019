@@ -15,15 +15,16 @@ import (
 // E as informações de conexão e usuário.
 // Também possui channels de input e output
 type IrcClient struct {
-	Socket   net.Conn
-	UserInfo userinterface.User
-	connInfo userinterface.ConnInfo
-	data     chan string
+	Socket         net.Conn
+	UserInfo       userinterface.User
+	connInfo       userinterface.ConnInfo
+	DataFromServer chan string
+	DataFromUser   chan []string
 }
 
 // NewClient retorna um novo IrcClient
 func NewClient(socket net.Conn, userInfo userinterface.User, connInfo userinterface.ConnInfo) *IrcClient {
-	return &IrcClient{socket, userInfo, connInfo, make(chan string, 100)}
+	return &IrcClient{socket, userInfo, connInfo, make(chan string, 100), make(chan []string, 100)}
 }
 
 // OpenSocket abre uma conexão com o servidor IRC
@@ -112,10 +113,10 @@ func (client *IrcClient) Connect() bool {
 	return true
 }
 
-// Receive recebe as mensagens do servidor e as passa para o display.
+// ListenServer recebe as mensagens do servidor e as passa para o display.
 // Caso receba uma mensagem de ERROR ou KILL fecha o socket
 // Caso receba uma mensagem PING, envia o PONG
-func (client *IrcClient) Receive() {
+func (client *IrcClient) ListenServer() {
 	readSocket := bufio.NewReader(client.Socket)
 	for {
 		message, err := readSocket.ReadString('\n')
@@ -124,20 +125,19 @@ func (client *IrcClient) Receive() {
 			fmt.Println("Erro lendo so socket:", err)
 			fmt.Println("Fechando conexão")
 			client.Socket.Close()
-			close(client.data)
+			close(client.DataFromServer)
 			break
 		}
 		// Mensages que iniciam com prefixo não são erros
 		// Então são mostradas
 		if message[0] == ':' {
-			fmt.Println("RECEIVED:", message)
+			client.DataFromServer <- message[1:]
 		}
 		// Mensagens que não iniciam com prefixo podem ser erros ou pings
 		fields := strings.Fields(message)
 		if fields[0] == "PING" {
 			// Mensagens de PING devem ser respondidas para manter o canal aberto.
 			// A resposta é um PONG
-			fmt.Println("Received PING. Responding.")
 			reply := pongCmd(fields[1])
 			client.Socket.Write([]byte(reply))
 		} else if fields[0] == "ERROR" || fields[0] == "KILL" {
@@ -146,7 +146,7 @@ func (client *IrcClient) Receive() {
 			// Logo, o cliente precisará se reconectar.
 			fmt.Println("Fatal Error:", message)
 			client.Socket.Close()
-			close(client.data)
+			close(client.DataFromServer)
 			break
 		}
 	}
@@ -155,6 +155,33 @@ func (client *IrcClient) Receive() {
 
 // HandleConnection envia comandos para o servidor pelo socket.
 // Os comandos são inseridos pelo usuário.
-func HandleConnection(command []string) {
-	fmt.Println("TODO: handler")
+func (client *IrcClient) HandleConnection(command []string) {
+	var cmdToSend string
+	switch command[0] {
+	case "/join":
+		if len(command) == 3 {
+			// Channel e Key
+			cmdToSend = joinCmd(command[1], command[2])
+		} else {
+			// Just Channel
+			cmdToSend = joinCmd(command[1], "")
+		}
+	case "/part":
+		cmdToSend = partCmd(command[1])
+	case "/quit":
+		cmdToSend = strings.Join(command[1:], " ")
+		cmdToSend = quitCmd(cmdToSend)
+	case "/list":
+		if len(command) >= 2 {
+			// Channel e Key
+			cmdToSend = listCmd(command[1])
+		} else {
+			// Just Channel
+			cmdToSend = listCmd("")
+		}
+	case "/msg":
+		cmdToSend = msgCmd(command[1], command[2:])
+	}
+	fmt.Println("[Sending]", cmdToSend)
+	client.Socket.Write([]byte(cmdToSend))
 }

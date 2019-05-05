@@ -45,3 +45,10 @@ func partCmd(channel string) string {
 func msgCmd(receiver string, message []string) string {
 	return "PRIVMSG " + receiver + " :" + strings.Join(message, " ") + CRLF
 }
+
+func listCmd(channel string) string {
+	if channel == "" {
+		return "LIST" + CRLF
+	}
+	return "LIST " + channel + CRLF
+}

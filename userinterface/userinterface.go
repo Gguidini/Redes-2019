@@ -35,35 +35,35 @@ type ConnInfo struct {
 // As informações são aquelas da struct User e ConnInfo
 func ReadUserData() (User, ConnInfo) {
 	reader := bufio.NewReader(os.Stdin)
-	
+
 	// Username
 	fmt.Print("Username: ")
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimRight(username, "\n")
-	
+
 	// Nickname
 	fmt.Print("Nick: ")
 	nick, _ := reader.ReadString('\n')
 	nick = strings.TrimRight(nick, "\n")
-	
+
 	// Server to connect
 	fmt.Print("Remote server name: ")
 	server, _ := reader.ReadString('\n')
 	server = strings.TrimRight(server, "\n")
-	
+
 	// Connection port
 	fmt.Print("Porta da conexão: ")
 	port, _ := reader.ReadString('\n')
 	port = strings.TrimRight(port, "\n")
 	numPort, _ := strconv.Atoi(port)
-	
+
 	// Connection Password, if any
 	fmt.Print("O servidor possui uma senha? [s/n] ")
 	pass, _ := reader.ReadString('\n')
 	pass = strings.TrimRight(pass, "\n")
 	pass = strings.TrimLeft(pass, "\n")
 	passFlag := false
-	
+
 	if strings.ToLower(pass) == "s" {
 		passFlag = true
 		fmt.Print("Senha: ")
@@ -84,22 +84,22 @@ func ReadUserData() (User, ConnInfo) {
 	return newUser, newConnInfo
 }
 
-
 // Faz o parse do comando em um array de strings
 
 func parseCommand(command string) []string {
-	parsedString := strings.Split(strings.ToLower(command)," ")
+	parsedString := strings.Split(command, " ")
 	return parsedString
 }
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [4]string
-	validCommands[0] = "/join" 
+	var validCommands [5]string
+	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
 	validCommands[3] = "/msg"
-	for _, item := range(validCommands) {
+	validCommands[4] = "/part"
+	for _, item := range validCommands {
 		if item == command {
 			return true
 		}
@@ -115,50 +115,53 @@ func ReadCommand(channel string) []string {
 	// ou nenhum se ele não está num canal
 	fmt.Print(channel)
 	command, _ := reader.ReadString('\n')
-	command = strings.TrimRight(command, "\n")
+	command = strings.TrimRight(command, "\r\n")
 	parsedCommand := parseCommand(command)
-	isValid := validateCommand(parsedCommand[0])
+	isValid := validateCommand(strings.ToLower(parsedCommand[0]))
 	if isValid == true {
 		return parsedCommand
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // Verifica a estrutura de cada comando
 // /join <#channel>
-// /list  
+// /list
 // /quit <message>
 // /msg <#channel>|<user> <message>
-func VerifyStructure(command []string ) bool {
-	var result bool = false
+func VerifyStructure(command []string) bool {
+	var result = false
 	switch command[0] {
 	case "/join":
-		if len(command) > 1  {
+		if len(command) > 1 {
 			channel := string(command[1])
-			if (channel[0] == '#' && len(channel) > 1) {
+			if (channel[0] == '#' || channel[0] == '&') && len(channel) > 1 {
 				result = true
 			}
 		}
-		
+
 	case "/list":
 		result = true
 
 	case "/quit":
 		if len(command) > 1 {
 			message := string(command[1])
-			if (len(message) > 0) {
+			if len(message) > 0 {
 				result = true
 			}
 		}
-		
+
 	case "/msg":
 		if len(command) > 2 {
 			target := string(command[1])
 			message := string(command[2])
-			if (len(target) > 1 && len(message) > 1) {
+			if len(target) > 1 && len(message) > 1 {
 				result = true
 			}
+		}
+	case "/part":
+		if len(command) == 2 {
+			result = true
 		}
 	}
 
