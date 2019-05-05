@@ -16,7 +16,7 @@ func nickCmd(nick string) string {
 	return "NICK " + nick + CRLF
 }
 
-func userCmd(nick, server, host, user string) string {
+func userCmd(nick, host, server, user string) string {
 	cmd := "USER " +
 		nick + " " +
 		host + " " +
