@@ -65,3 +65,12 @@ func topicCmd(channel, topic string) string {
 func inviteCmd(nick, channel string) string {
 	return "INIVTE " + nick + " " + channel + CRLF
 }
+
+func namesCmd(channel string) string {
+	cmd := "NAMES"
+	if channel != "" {
+		cmd += " " + channel
+	}
+	cmd += CRLF
+	return cmd
+}

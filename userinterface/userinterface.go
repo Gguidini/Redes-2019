@@ -93,7 +93,7 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [8]string
+	var validCommands [9]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
@@ -102,6 +102,7 @@ func validateCommand(command string) bool {
 	validCommands[5] = "/help"
 	validCommands[6] = "/topic"
 	validCommands[7] = "/invite"
+	validCommands[8] = "/names"
 	for _, item := range validCommands {
 		if item == command {
 			return true
@@ -224,9 +225,16 @@ Separe canais APENAS por vírgula (sem espaço)`
 /topic <channel> [<topic>]`
 		}
 
-		// TODO: Command NAMES
+	case "/names":
 		// Command: /names
 		// Parameters: [<channel>{,<channel>}]
+		if len(command) <= 2 {
+			result = true
+		} else {
+			err = `Número incorreto de parâmetros. Deveria ser 0 ou 1.
+/names [<channel>{,<channel>}]
+Separe canais APENAS por vírgula (sem espaço)`
+		}
 
 	case "/invite":
 		// Command: /invite
@@ -264,6 +272,7 @@ func displayHelp() {
 		"/msg <receiver>{,<receiver>} <text to be sent> - Sends message to <receiver>.",
 		"/topic <channel> [<topic>] - Mostra o tópico de <channel>. Se <topic estiver presente, altera tópico de <channel> para <topic>.",
 		"/invite <nickname> <channel> - Convida <nickname> para o canal <channel>.",
+		"/names [<channel>{,<channel>}] - Lista usuários disponíveis no canal. Se nenhum canal é informado, lista todos os usuários visíveis.",
 	}
 
 	for _, help := range availableCommands {

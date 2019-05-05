@@ -157,7 +157,7 @@ func (client *IrcClient) ListenServer() {
 // Os comandos são inseridos pelo usuário.
 func (client *IrcClient) HandleConnection(command []string) {
 	var cmdToSend string
-	switch command[0] {
+	switch strings.ToLower(command[0]) {
 	case "/join":
 		if len(command) == 3 {
 			// Channel e Key
@@ -185,6 +185,12 @@ func (client *IrcClient) HandleConnection(command []string) {
 		cmdToSend = topicCmd(command[1], strings.Join(command[2:], " "))
 	case "/invite":
 		cmdToSend = inviteCmd(command[1], command[2])
+	case "/names":
+		if len(command) == 2 {
+			cmdToSend = namesCmd(command[1])
+		} else {
+			cmdToSend = namesCmd("")
+		}
 	}
 
 	client.Socket.Write([]byte(cmdToSend))
