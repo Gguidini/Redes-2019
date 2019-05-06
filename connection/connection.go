@@ -212,6 +212,8 @@ func (client *IrcClient) HandleConnection(command []string) {
 		} else {
 			cmdToSend = whoCmd("", "")
 		}
+	case "/mode":
+		cmdToSend = modeCmd(command[1:])
 	}
 
 	client.Socket.Write([]byte(cmdToSend))

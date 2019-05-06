@@ -208,11 +208,6 @@ Separe receivers APENAS por vírgula (sem espaço)`
 Separe canais APENAS por vírgula (sem espaço)`
 		}
 
-		// TODO: Command MODE
-		// Comand: /mode
-		// Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>]	[<ban mask>]
-		// Parameters: <nickname> {[+|-]|i|w|s|o}
-
 	case "/topic":
 		// Command: /topic
 		// Parameters: <channel> [<topic>]
@@ -279,6 +274,42 @@ Separe canais APENAS por vírgula (sem espaço)`
 			err = `Número incorreto de parâmetros. Deveria ser pelo menos 1.
 /ison <nickname>{<space><nickname>}`
 		}
+
+	case "/mode":
+		// Comand: /mode
+		// Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>]	[<ban mask>] [<key>]
+		// Parameters: <nickname> {[+|-]|i|w|s|o}
+		if len(command) > 3 && len(command) < 5 {
+			if command[1][0] == '#' || command[1][0] == '&' {
+				// Mode de canal
+				if command[2][0] == '+' || command[2][0] == '-' {
+					if strings.ContainsAny(command[2], "obvkl") && len(command) >= 4 {
+						result = true
+					} else if !strings.ContainsAny(command[2], "obvkl") && len(command) >= 4 {
+						err = "Muitos argumentos para este comando."
+					} else {
+						result = true
+					}
+				} else {
+					err = "Indique se vai ativar (+) ou desativar (-) as opções."
+				}
+			} else {
+				if len(command) == 3 {
+					if command[2][0] == '+' || command[2][0] == '-' {
+						result = true
+					} else {
+						err = "Indique se vai ativar (+) ou desativar (-) as opções."
+					}
+				} else {
+					err = "Número inválido de argumentos. Deveriam ser 3."
+				}
+			}
+		} else {
+			err = `Número errado de parâmetros. Deve ser entre 2 e 5.
+/mode <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>]	[<ban mask>]
+/mode <nickname> {[+|-]|i|w|s|o}
+[limit] usado com flag l, [user] com flags o,v, [key] com flag k, [banmask] com flag b.`
+		}
 	}
 
 	return result, err
@@ -298,6 +329,25 @@ func displayHelp() {
 		"/ison <nickname>{<space><nickname>} - Verifica se <nickname> está ON",
 		"/away [message] - Define usuário como AWAY, se tiver uma mensagem, ou cancela AWAY, se não houver mensagem.",
 		"/who [<mask> ['o']] - Busca informações sobre qualquer usuário que seja match com a mask (use regex). Se a opção 'o' estiver ativada, retorna somente sobre operators.",
+		"",
+		`/mode <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>] [<ban mask>] [<key>] - Altera o mode de um canal. Algumas opções precisam de privilégios para serem aceitas. (+) Ativa flag, (-) desativa flag. Flags são:
+		o - give/take channel operator privileges;
+        p - private channel flag;
+        s - secret channel flag;
+        i - invite-only channel flag;
+        t - topic settable by channel operator only flag;
+        n - no messages to channel from clients on the outside;
+        m - moderated channel;
+		l - set the user limit to channel;
+		b - set a ban mask to keep users out;
+        v - give/take the ability to speak on a moderated channel;
+		k - set a channel key (password).`,
+		"",
+		`/mode <nickname> {[+|-]|i|w|s|o} - Altera modo de usuário. (+) Ativa flag, (-) desativa flag. Algumas opções precisam de privilégios. +o é sempre ignorado. Flags são:
+		i - marks a users as invisible;
+        s - marks a user for receipt of server notices;
+        w - user receives wallops;
+        o - operator flag.`,
 	}
 
 	for _, help := range availableCommands {
