@@ -281,7 +281,9 @@ Separe canais APENAS por vírgula (sem espaço)`
 		// Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>]	[<ban mask>] [<key>]
 		// Parameters: <nickname> {[+|-]|i|w|s|o}
 		if len(command) >= 2 && len(command) < 5 {
-			if command[1][0] == '#' || command[1][0] == '&' {
+			if len(command) == 2 {
+				result = true
+			} else if command[1][0] == '#' || command[1][0] == '&' {
 				// Mode de canal
 				if command[2][0] == '+' || command[2][0] == '-' {
 					if strings.ContainsAny(command[2], "obvkl") && len(command) >= 4 {
