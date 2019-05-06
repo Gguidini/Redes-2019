@@ -52,9 +52,13 @@ func ReadUserData() (User, ConnInfo) {
 	server = strings.TrimRight(server, "\n")
 
 	// Connection port
-	fmt.Print("Porta da conexão: ")
+	fmt.Print("Porta da conexão (deixe branco para usar default): ")
 	port, _ := reader.ReadString('\n')
-	port = strings.TrimRight(port, "\n")
+	if port == "" {
+		port = "6667"
+	} else {
+		port = strings.TrimRight(port, "\n")
+	}
 	numPort, _ := strconv.Atoi(port)
 
 	// Connection Password, if any
