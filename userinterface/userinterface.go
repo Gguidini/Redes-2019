@@ -54,6 +54,7 @@ func ReadUserData() (User, ConnInfo) {
 	// Connection port
 	fmt.Print("Porta da conexão (deixe branco para usar default): ")
 	port, _ := reader.ReadString('\n')
+	port = strings.TrimRight(port, "\n")
 	if port == "" {
 		port = "6667"
 	} else {
@@ -347,7 +348,7 @@ func displayHelp() {
 		"/ison <nickname>{<space><nickname>} - Verifica se <nickname> está ON",
 		"/away [message] - Define usuário como AWAY, se tiver uma mensagem, ou cancela AWAY, se não houver mensagem.",
 		"/who [<mask> ['o']] - Busca informações sobre qualquer usuário que seja match com a mask (use regex). Se a opção 'o' estiver ativada, retorna somente sobre operators.",
-		"/whois <nickmask>{,<nichmask>} - Mostra mais informações sobre determinado usuário"
+		"/whois <nickmask>{,<nichmask>} - Mostra mais informações sobre determinado usuário",
 		"",
 		`/mode <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>] [<ban mask>] [<key>] - Altera o mode de um canal, ou lista os modes dele se não houver flags. Algumas opções precisam de privilégios para serem aceitas. (+) Ativa flag, (-) desativa flag. Flags são:
 		o - give/take channel operator privileges;

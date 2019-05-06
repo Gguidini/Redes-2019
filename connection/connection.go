@@ -97,19 +97,25 @@ func (client *IrcClient) Connect() bool {
 	reader := bufio.NewReader(client.Socket)
 	msg, _ := reader.ReadString('\n')
 	msgPieces := strings.Fields(strings.TrimRight(msg, CRLF))
-	if msgPieces[1] != "001" {
+	if msgPieces[1] != "001" && msgPieces[1] != "NOTICE" {
 		fmt.Println("[Auth Error]", strings.Join(msgPieces[1:], " "))
 		client.Socket.Close()
 		return false
 	}
+	// Conseguiu autenticar mas ainda tem mais notificações do servidor
+	for msgPieces[1] == "NOTICE" {
+		msg, _ = reader.ReadString('\n')
+		msgPieces = strings.Fields(strings.TrimRight(msg, CRLF))
+		fmt.Println("[Notice]", strings.Join(msgPieces[4:], " "))
+	}
 
 	// Autenticação foi bem sucedida. Mostra mensagens de boas-vindas
 	fmt.Println("[ok] Autenticação bem sucedida!")
-	fmt.Println(strings.Join(msgPieces[3:], " "))
+	fmt.Println("[Welcome]", strings.Join(msgPieces[3:], " "))
 	for i := 0; i < 4; i++ {
 		msg, _ = reader.ReadString('\n')
 		msgPieces = strings.Fields(strings.TrimRight(msg, CRLF))
-		fmt.Println(strings.Join(msgPieces[3:], " "))
+		fmt.Println("[Welcome]", strings.Join(msgPieces[3:], " "))
 	}
 	return true
 }
