@@ -34,7 +34,7 @@ func NewClient(socket net.Conn, userInfo userinterface.User, connInfo userinterf
 func OpenSocket(conn userinterface.ConnInfo) net.Conn {
 	// Servidor:Porta
 	connTarget := conn.Servername + ":" + strconv.Itoa(conn.Port)
-	fmt.Println("\nAbrindo o socket TCP para", connTarget)
+	fmt.Println("\n[info] Abrindo o socket TCP para", connTarget)
 	connSocket, err := net.Dial("tcp", connTarget)
 	if err != nil {
 		panic(err)
@@ -54,7 +54,7 @@ func OpenSocket(conn userinterface.ConnInfo) net.Conn {
 			panic(errUserNotFound)
 		}
 		server := strings.Fields(msgLookUp)[0]
-		fmt.Println("Connection opened to", server[1:])
+		fmt.Println("[ok] Connection opened to", server[1:])
 		return connSocket
 	}
 }
@@ -65,7 +65,7 @@ func OpenSocket(conn userinterface.ConnInfo) net.Conn {
 // Autenticação é feita em 3 comandos:
 // 1. PASS 2. NICK 3. USER
 func (client *IrcClient) Connect() bool {
-	fmt.Println("Autenticando com o servidor")
+	fmt.Println("[info] Autenticando com o servidor")
 	// Inicialmente manda PASS, se for necessário
 	if client.connInfo.HasPasswd {
 		pass := passCmd(client.connInfo.Passwd)
@@ -104,7 +104,7 @@ func (client *IrcClient) Connect() bool {
 	}
 
 	// Autenticação foi bem sucedida. Mostra mensagens de boas-vindas
-	fmt.Println("Autenticação bem sucedida!")
+	fmt.Println("[ok] Autenticação bem sucedida!")
 	fmt.Println(strings.Join(msgPieces[3:], " "))
 	for i := 0; i < 4; i++ {
 		msg, _ = reader.ReadString('\n')
@@ -124,7 +124,7 @@ func (client *IrcClient) ListenServer() {
 		message = strings.TrimRight(message, "\r\n")
 		if err != nil {
 			fmt.Println("[Fatal Error]", err)
-			fmt.Println("Fechando conexão")
+			fmt.Println("[info] Fechando conexão")
 			client.Socket.Close()
 			close(client.DataFromServer)
 			break
@@ -151,7 +151,7 @@ func (client *IrcClient) ListenServer() {
 			break
 		}
 	}
-	fmt.Println("Stopped listening.")
+	fmt.Println("[info] Stopped listening.")
 }
 
 // HandleConnection envia comandos para o servidor pelo socket.

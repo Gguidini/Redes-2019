@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	fmt.Println("Iniciando Cliente.")
+	fmt.Println("==> Iniciando Cliente.")
 	// Pega informacões de usuário
-	fmt.Println("Identificando usuário")
+	fmt.Println("==> Identificando usuário")
 	user, conn := userinterface.ReadUserData()
 	// Criando socket com o servidor
 	connSocket := connection.OpenSocket(conn)
@@ -19,12 +19,12 @@ func main() {
 	// Conectando cliente ao servidor
 	ok := client.Connect()
 	if !ok {
-		fmt.Println("Encerrando.")
+		fmt.Println("==> Encerrando.")
 	}
 
 	go client.ListenServer()
 	go listenUser(client)
-	fmt.Println("Use /help to display available commands.")
+	fmt.Println("[info] Use /help to display available commands.")
 	ok = true
 	for ok {
 		select {
@@ -39,7 +39,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("Client disconnected. Terminating.")
+	fmt.Println("[info] Client disconnected. Terminating.")
 }
 
 func listenUser(client *connection.IrcClient) {
@@ -48,7 +48,7 @@ func listenUser(client *connection.IrcClient) {
 	for {
 		command := userinterface.ReadCommand(channel)
 		if command == nil {
-			fmt.Println("Erro: comando invalido")
+			fmt.Println("[Input error] comando invalido")
 		} else {
 			validStructure, err := userinterface.VerifyStructure(command)
 			if validStructure == false {

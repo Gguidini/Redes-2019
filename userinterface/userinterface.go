@@ -93,7 +93,7 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [12]string
+	var validCommands [13]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
@@ -280,7 +280,7 @@ Separe canais APENAS por vírgula (sem espaço)`
 		// Comand: /mode
 		// Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>]	[<ban mask>] [<key>]
 		// Parameters: <nickname> {[+|-]|i|w|s|o}
-		if len(command) > 3 && len(command) < 5 {
+		if len(command) > 2 && len(command) < 5 {
 			if command[1][0] == '#' || command[1][0] == '&' {
 				// Mode de canal
 				if command[2][0] == '+' || command[2][0] == '-' {
