@@ -98,6 +98,9 @@ func whoCmd(mask, o string) string {
 	return cmd
 }
 
+func whoisCmd(nicks string) string {
+	return "WHOIS " + nicks + CRLF
+}
 func modeCmd(options []string) string {
 	return "MODE " + strings.Join(options, " ") + CRLF
 }

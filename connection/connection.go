@@ -212,6 +212,8 @@ func (client *IrcClient) HandleConnection(command []string) {
 		} else {
 			cmdToSend = whoCmd("", "")
 		}
+	case "/whois":
+		cmdToSend = whoisCmd(command[1])
 	case "/mode":
 		cmdToSend = modeCmd(command[1:])
 	}
