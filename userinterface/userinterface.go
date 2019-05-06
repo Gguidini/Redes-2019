@@ -106,6 +106,7 @@ func validateCommand(command string) bool {
 	validCommands[9] = "/ison"
 	validCommands[10] = "/away"
 	validCommands[11] = "/who"
+	validCommands[12] = "/mode"
 	for _, item := range validCommands {
 		if item == command {
 			return true
@@ -332,22 +333,22 @@ func displayHelp() {
 		"",
 		`/mode <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>] [<ban mask>] [<key>] - Altera o mode de um canal. Algumas opções precisam de privilégios para serem aceitas. (+) Ativa flag, (-) desativa flag. Flags são:
 		o - give/take channel operator privileges;
-        p - private channel flag;
-        s - secret channel flag;
-        i - invite-only channel flag;
+    	p - private channel flag;
+    	s - secret channel flag;
+    	i - invite-only channel flag;
         t - topic settable by channel operator only flag;
-        n - no messages to channel from clients on the outside;
-        m - moderated channel;
+    	n - no messages to channel from clients on the outside;
+    	m - moderated channel;
 		l - set the user limit to channel;
 		b - set a ban mask to keep users out;
-        v - give/take the ability to speak on a moderated channel;
+    	v - give/take the ability to speak on a moderated channel;
 		k - set a channel key (password).`,
 		"",
 		`/mode <nickname> {[+|-]|i|w|s|o} - Altera modo de usuário. (+) Ativa flag, (-) desativa flag. Algumas opções precisam de privilégios. +o é sempre ignorado. Flags são:
 		i - marks a users as invisible;
-        s - marks a user for receipt of server notices;
-        w - user receives wallops;
-        o - operator flag.`,
+    	s - marks a user for receipt of server notices;
+    	w - user receives wallops;
+    	o - operator flag.`,
 	}
 
 	for _, help := range availableCommands {
