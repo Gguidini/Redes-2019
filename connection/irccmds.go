@@ -99,5 +99,5 @@ func whoCmd(mask, o string) string {
 }
 
 func modeCmd(options []string) string {
-	return "MODE " + strings.Join(options, " ")
+	return "MODE " + strings.Join(options, " ") + CRLF
 }
