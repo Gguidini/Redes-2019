@@ -93,7 +93,7 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [11]string
+	var validCommands [12]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
@@ -105,6 +105,7 @@ func validateCommand(command string) bool {
 	validCommands[8] = "/names"
 	validCommands[9] = "/ison"
 	validCommands[10] = "/away"
+	validCommands[11] = "/who"
 	for _, item := range validCommands {
 		if item == command {
 			return true
@@ -248,9 +249,21 @@ Separe canais APENAS por vírgula (sem espaço)`
 /invite <nickname> <channel>`
 		}
 
-		// TODO: Command WHO
+	case "/who":
 		// Command: /who
 		// Parameters: [<name> [<o>]]
+		if len(command) > 1 && len(command) <= 3 {
+			if len(command) == 3 && command[2] == "o" {
+				result = true
+			} else if len(command) == 2 {
+				result = true
+			} else {
+				err = "Último argumento só pode ser 'o'. /who [<mask> ['o']]."
+			}
+		} else {
+			err = `Número de argumentos inválido. Deve ser 0 até 2.
+/who [<mask> ['o']].`
+		}
 
 	case "/away":
 		// Command: /away
@@ -284,6 +297,7 @@ func displayHelp() {
 		"/names [<channel>{,<channel>}] - Lista usuários disponíveis no canal. Se nenhum canal é informado, lista todos os usuários visíveis.",
 		"/ison <nickname>{<space><nickname>} - Verifica se <nickname> está ON",
 		"/away [message] - Define usuário como AWAY, se tiver uma mensagem, ou cancela AWAY, se não houver mensagem.",
+		"/who [<mask> ['o']] - Busca informações sobre qualquer usuário que seja match com a mask (use regex). Se a opção 'o' estiver ativada, retorna somente sobre operators.",
 	}
 
 	for _, help := range availableCommands {

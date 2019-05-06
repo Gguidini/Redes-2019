@@ -85,3 +85,15 @@ func awayCmd(msg []string) string {
 	}
 	return "AWAY :" + strings.Join(msg, " ") + CRLF
 }
+
+func whoCmd(mask, o string) string {
+	cmd := "WHO"
+	if mask != "" {
+		cmd += " " + mask
+	}
+	if o != "" {
+		cmd += " " + o
+	}
+	cmd += CRLF
+	return cmd
+}

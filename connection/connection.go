@@ -204,6 +204,14 @@ func (client *IrcClient) HandleConnection(command []string) {
 		} else {
 			cmdToSend = awayCmd(command[1:])
 		}
+	case "/who":
+		if len(command) == 3 {
+			cmdToSend = whoCmd(command[1], command[2])
+		} else if len(command) == 2 {
+			cmdToSend = whoCmd(command[1], "")
+		} else {
+			cmdToSend = whoCmd("", "")
+		}
 	}
 
 	client.Socket.Write([]byte(cmdToSend))
