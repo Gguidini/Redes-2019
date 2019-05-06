@@ -280,7 +280,7 @@ Separe canais APENAS por vírgula (sem espaço)`
 		// Comand: /mode
 		// Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>]	[<ban mask>] [<key>]
 		// Parameters: <nickname> {[+|-]|i|w|s|o}
-		if len(command) > 2 && len(command) < 5 {
+		if len(command) >= 2 && len(command) < 5 {
 			if command[1][0] == '#' || command[1][0] == '&' {
 				// Mode de canal
 				if command[2][0] == '+' || command[2][0] == '-' {
@@ -306,7 +306,7 @@ Separe canais APENAS por vírgula (sem espaço)`
 				}
 			}
 		} else {
-			err = `Número errado de parâmetros. Deve ser entre 2 e 5.
+			err = `Número errado de parâmetros. Deve ser entre 1 e 5.
 /mode <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>]	[<ban mask>]
 /mode <nickname> {[+|-]|i|w|s|o}
 [limit] usado com flag l, [user] com flags o,v, [key] com flag k, [banmask] com flag b.`
@@ -331,7 +331,7 @@ func displayHelp() {
 		"/away [message] - Define usuário como AWAY, se tiver uma mensagem, ou cancela AWAY, se não houver mensagem.",
 		"/who [<mask> ['o']] - Busca informações sobre qualquer usuário que seja match com a mask (use regex). Se a opção 'o' estiver ativada, retorna somente sobre operators.",
 		"",
-		`/mode <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>] [<ban mask>] [<key>] - Altera o mode de um canal. Algumas opções precisam de privilégios para serem aceitas. (+) Ativa flag, (-) desativa flag. Flags são:
+		`/mode <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>] [<ban mask>] [<key>] - Altera o mode de um canal, ou lista os modes dele se não houver flags. Algumas opções precisam de privilégios para serem aceitas. (+) Ativa flag, (-) desativa flag. Flags são:
 		o - give/take channel operator privileges;
     	p - private channel flag;
     	s - secret channel flag;
@@ -344,7 +344,7 @@ func displayHelp() {
     	v - give/take the ability to speak on a moderated channel;
 		k - set a channel key (password).`,
 		"",
-		`/mode <nickname> {[+|-]|i|w|s|o} - Altera modo de usuário. (+) Ativa flag, (-) desativa flag. Algumas opções precisam de privilégios. +o é sempre ignorado. Flags são:
+		`/mode <nickname> {[+|-]|i|w|s|o} - Altera modo de usuário, ou lista os modes dele se não houver flag. (+) Ativa flag, (-) desativa flag. Algumas opções precisam de privilégios. +o é sempre ignorado. Flags são:
 		i - marks a users as invisible;
     	s - marks a user for receipt of server notices;
     	w - user receives wallops;
