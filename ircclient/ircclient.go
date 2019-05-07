@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/Redes-2019/connection"
-	// "github.com/Redes-2019/tui"
 	"github.com/Redes-2019/userinterface"
 )
 

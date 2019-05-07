@@ -6,6 +6,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"os"
 
 	"github.com/Redes-2019/userinterface"
 )
@@ -214,6 +215,9 @@ func (client *IrcClient) HandleConnection(command []string) {
 		} else {
 			cmdToSend = kickCmd(command[1], command[2], command[3:])
 		}
+	case "/clear":
+			fmt.Println("test")
+			os.Stdout.WriteString("\x1b[3;J\x1b[H\x1b[2J")
 	}
 
 	client.Socket.Write([]byte(cmdToSend))

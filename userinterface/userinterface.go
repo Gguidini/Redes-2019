@@ -98,7 +98,7 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [15]string
+	var validCommands [16]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
@@ -114,6 +114,7 @@ func validateCommand(command string) bool {
 	validCommands[12] = "/mode"
 	validCommands[13] = "/whois"
 	validCommands[14] = "/kick"
+	validCommands[15] = "/clear"
 	for _, item := range validCommands {
 		if item == command || len(command) == 0{
 			return true
@@ -346,7 +347,10 @@ Necessário privilégios para o comando funcionar.
 /mode <nickname> {[+|-]|i|w|s|o}
 [limit] usado com flag l, [user] com flags o,v, [key] com flag k, [banmask] com flag b.`
 		}
+	case "/clear":
+		result = true
 	}
+
 
 	return result, err
 }
@@ -367,6 +371,7 @@ func displayHelp() {
 		"/who [<mask> ['o']] - Busca informações sobre qualquer usuário que seja match com a mask (use regex). Se a opção 'o' estiver ativada, retorna somente sobre operators.",
 		"/whois <nickmask>{,<nichmask>} - Mostra mais informações sobre determinado usuário",
 		"/kick <channel> <user> [<comment>] - Exclui <user> de <chanel>. Necessita privilégios.",
+		"/clear - Limpa a tela",
 		"",
 		`/mode <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>] [<ban mask>] [<key>] - Altera o mode de um canal, ou lista os modes dele se não houver flags. Algumas opções precisam de privilégios para serem aceitas. (+) Ativa flag, (-) desativa flag. Flags são:
 		o - give/take channel operator privileges;
