@@ -201,6 +201,12 @@ func (client *IrcClient) HandleConnection(command []string) {
 		cmdToSend = whoisCmd(command[1])
 	case "/mode":
 		cmdToSend = modeCmd(command[1:])
+	case "/kick":
+		if len(command) == 3 {
+			cmdToSend = kickCmd(command[1], command[2], nil)
+		} else {
+			cmdToSend = kickCmd(command[1], command[2], command[3:])
+		}
 	}
 
 	client.Socket.Write([]byte(cmdToSend))

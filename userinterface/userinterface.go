@@ -98,7 +98,7 @@ func parseCommand(command string) []string {
 
 // Valida o comando recebido
 func validateCommand(command string) bool {
-	var validCommands [14]string
+	var validCommands [15]string
 	validCommands[0] = "/join"
 	validCommands[1] = "/list"
 	validCommands[2] = "/quit"
@@ -113,6 +113,7 @@ func validateCommand(command string) bool {
 	validCommands[11] = "/who"
 	validCommands[12] = "/mode"
 	validCommands[13] = "/whois"
+	validCommands[14] = "/kick"
 	for _, item := range validCommands {
 		if item == command {
 			return true
@@ -292,6 +293,22 @@ Separe canais APENAS por vírgula (sem espaço)`
 /whois <nickmask>{,<nichmask>}.
 Separe <nickamsk> APENAS por vírgula (sem espaço)`
 		}
+
+	case "/kick":
+		// Command: /kick
+		// Parameters: <channel> <user> [<comment>]
+		if len(command) >= 3 {
+			if command[1][0] == '#' || command[1][0] == '&' {
+				result = true
+			} else {
+				err = "Primeiro argumento deve ser um canal"
+			}
+		} else {
+			err = `Número inválido de parâmetros. devem ser ao menos 2.
+/kick <channel> <user> [<comment>].
+Necessário privilégios para o comando funcionar.
+`
+		}
 	case "/mode":
 		// Comand: /mode
 		// Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>]	[<ban mask>] [<key>]
@@ -349,6 +366,7 @@ func displayHelp() {
 		"/away [message] - Define usuário como AWAY, se tiver uma mensagem, ou cancela AWAY, se não houver mensagem.",
 		"/who [<mask> ['o']] - Busca informações sobre qualquer usuário que seja match com a mask (use regex). Se a opção 'o' estiver ativada, retorna somente sobre operators.",
 		"/whois <nickmask>{,<nichmask>} - Mostra mais informações sobre determinado usuário",
+		"/kick <channel> <user> [<comment>] - Exclui <user> de <chanel>. Necessita privilégios.",
 		"",
 		`/mode <channel> {[+|-]|o|p|s|i|t|n|b|v|k} [<limit>] [<user>] [<ban mask>] [<key>] - Altera o mode de um canal, ou lista os modes dele se não houver flags. Algumas opções precisam de privilégios para serem aceitas. (+) Ativa flag, (-) desativa flag. Flags são:
 		o - give/take channel operator privileges;

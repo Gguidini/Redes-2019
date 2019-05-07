@@ -104,3 +104,10 @@ func whoisCmd(nicks string) string {
 func modeCmd(options []string) string {
 	return "MODE " + strings.Join(options, " ") + CRLF
 }
+
+func kickCmd(channel, user string, comment []string) string {
+	if comment == nil {
+		return "KICK " + channel + " " + user + CRLF
+	}
+	return "KICK " + channel + " " + user + " " + strings.Join(comment, " ") + CRLF
+}
