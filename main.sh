@@ -10,13 +10,13 @@
 #	--run - executa o programa
 #	--install - gera um executável 'ircclient'
 
-if [[ $1 != '--run' && $! != '--install' ]]; then
+if [[ $1 != '--run' && $1 != '--install' ]]; then
 	echo "Parametro desconhecido"
 	printf "\t--run - Executa o programa\n"
 	printf "\t--install - Gera um executável na máquina\n"
 else
 	SRCDIR=$GOPATH/src/github.com/Redes-2019
-	OBJDIRS="userinterface connection tui"
+	OBJDIRS="userinterface connection"
 
 	for dir in $OBJDIRS ; do
 		echo "Compilando $dir"
