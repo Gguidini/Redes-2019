@@ -45,6 +45,8 @@ func main() {
 		case msg, open := <-client.DataFromServer:
 			// Mensagem foi recebida pelo servidor
 			if !open {
+				// Se o socket foi fechado então o cliente já foi desconectado.
+				// E podemos encerrar o programa
 				ok = false
 			} else {
 				fmt.Println(msg.PrintInfo, "<"+msg.Prefix+">", msg.Params)
