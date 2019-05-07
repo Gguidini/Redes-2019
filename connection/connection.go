@@ -18,14 +18,18 @@ type IrcClient struct {
 	Socket         net.Conn
 	UserInfo       userinterface.User
 	connInfo       userinterface.ConnInfo
-	DataFromServer chan string
+	DataFromServer chan Message
 	DataFromUser   chan []string
 	isAway         bool
+	ConnectSuccess chan bool
+	NickInvalid    chan bool
 }
 
 // NewClient retorna um novo IrcClient
 func NewClient(socket net.Conn, userInfo userinterface.User, connInfo userinterface.ConnInfo) *IrcClient {
-	return &IrcClient{socket, userInfo, connInfo, make(chan string, 100), make(chan []string, 100), false}
+	c := &IrcClient{socket, userInfo, connInfo, make(chan Message, 100), make(chan []string, 100), false, make(chan bool, 1), make(chan bool, 1)}
+	c.ConnectSuccess <- false // Inicia conexão como não feita
+	return c
 }
 
 // OpenSocket abre uma conexão com o servidor IRC
@@ -38,25 +42,10 @@ func OpenSocket(conn userinterface.ConnInfo) net.Conn {
 	connSocket, err := net.Dial("tcp", connTarget)
 	if err != nil {
 		panic(err)
-	} else {
-		// Quando uma conexão é aberta, o servidor tenta encontrar o usuário.
-		// Vamos ler as mensagens de retorno para ver se o socket está ok
-		// E para limpar o buffer de entrada
-		// Como não passamos nenhum usuário, duas mensagens são enviadas:
-		// :server_name NOTICE * :*** Looking up your username
-		// :server_name NOTICE * :*** Could not find your username
-		reader := bufio.NewReader(connSocket)
-		msgLookUp, errLookUp := reader.ReadString('\n')
-		_, errUserNotFound := reader.ReadString('\n')
-		if errLookUp != nil {
-			panic(errLookUp)
-		} else if errUserNotFound != nil {
-			panic(errUserNotFound)
-		}
-		server := strings.Fields(msgLookUp)[0]
-		fmt.Println("[ok] Connection opened to", server[1:])
-		return connSocket
 	}
+
+	fmt.Println("[ok] Conexão bem sucedida!")
+	return connSocket
 }
 
 // Connect faz a autenticação com o servidor IRC com o qual temos um socket
@@ -64,7 +53,7 @@ func OpenSocket(conn userinterface.ConnInfo) net.Conn {
 // O cliente também já possui as informações de usuário e de conexão
 // Autenticação é feita em 3 comandos:
 // 1. PASS 2. NICK 3. USER
-func (client *IrcClient) Connect() bool {
+func (client *IrcClient) Connect() {
 	fmt.Println("[info] Autenticando com o servidor")
 	// Inicialmente manda PASS, se for necessário
 	if client.connInfo.HasPasswd {
@@ -74,7 +63,6 @@ func (client *IrcClient) Connect() bool {
 			panic(err)
 		}
 	}
-
 	// Manda NICK
 	nick := nickCmd(client.UserInfo.Nick)
 	_, err := client.Socket.Write([]byte(nick))
@@ -91,43 +79,18 @@ func (client *IrcClient) Connect() bool {
 	if err != nil {
 		panic(err)
 	}
-
-	// Verifica se o servidor enviou as mensagens de Welcome.
-	// Caso elas não tenham sido recebidas, autenticação falhou.
-	reader := bufio.NewReader(client.Socket)
-	msg, _ := reader.ReadString('\n')
-	msgPieces := strings.Fields(strings.TrimRight(msg, CRLF))
-	if msgPieces[1] != "001" && msgPieces[1] != "NOTICE" {
-		fmt.Println("[Auth Error]", strings.Join(msgPieces[1:], " "))
-		client.Socket.Close()
-		return false
-	}
-	// Conseguiu autenticar mas ainda tem mais notificações do servidor
-	for msgPieces[1] == "NOTICE" {
-		msg, _ = reader.ReadString('\n')
-		msgPieces = strings.Fields(strings.TrimRight(msg, CRLF))
-		fmt.Println("[Notice]", strings.Join(msgPieces[4:], " "))
-	}
-
-	// Autenticação foi bem sucedida. Mostra mensagens de boas-vindas
-	fmt.Println("[ok] Autenticação bem sucedida!")
-	fmt.Println("[Welcome]", strings.Join(msgPieces[3:], " "))
-	for i := 0; i < 4; i++ {
-		msg, _ = reader.ReadString('\n')
-		msgPieces = strings.Fields(strings.TrimRight(msg, CRLF))
-		fmt.Println("[Welcome]", strings.Join(msgPieces[3:], " "))
-	}
-	return true
 }
 
 // ListenServer recebe as mensagens do servidor e as passa para o display.
 // Caso receba uma mensagem de ERROR ou KILL fecha o socket
 // Caso receba uma mensagem PING, envia o PONG
+// Verifica alguns erros de autenticação
 func (client *IrcClient) ListenServer() {
+	// Socket, buffer de leitura
 	readSocket := bufio.NewReader(client.Socket)
 	for {
+		// Lê algo do Socket
 		message, err := readSocket.ReadString('\n')
-		message = strings.TrimRight(message, "\r\n")
 		if err != nil {
 			fmt.Println("[Fatal Error]", err)
 			fmt.Println("[info] Fechando conexão")
@@ -135,23 +98,39 @@ func (client *IrcClient) ListenServer() {
 			close(client.DataFromServer)
 			break
 		}
+		parsedMsg := parseMessage(message)
 		// Mensages que iniciam com prefixo não são erros, então são mostradas
 		// Mensagens cujo prefixo é o Nickname foram enviadas por nós.
-		if message[0] == ':' && (!strings.HasPrefix(string(message[0]), ":"+client.UserInfo.Nick+"!")) {
-			client.DataFromServer <- message[1:]
+
+		if parsedMsg.Cmd != "PING" && parsedMsg.Cmd != "ERROR" {
+			client.DataFromServer <- parsedMsg
+		}
+
+		// Verifies if message has a numeric code
+		if parsedMsg.Cmd[0] >= ' ' && parsedMsg.Cmd[0] <= '9' {
+			// Check for specific responses to set flags
+			switch parsedMsg.Cmd {
+			// Some Nick Error
+			case erroneusNick, errNickCollision, errNickUsed:
+				client.ConnectSuccess <- false
+				client.NickInvalid <- true
+			// Welcome Messages
+			case welcomeHeader1:
+				client.ConnectSuccess <- true
+				client.NickInvalid <- false
+			}
 		}
 		// Mensagens que não iniciam com prefixo podem ser erros ou pings
-		fields := strings.Fields(message)
-		if fields[0] == "PING" {
+		if parsedMsg.Cmd == "PING" {
 			// Mensagens de PING devem ser respondidas para manter o canal aberto.
 			// A resposta é um PONG
-			reply := pongCmd(fields[1])
+			reply := pongCmd(parsedMsg.Params)
 			client.Socket.Write([]byte(reply))
-		} else if fields[0] == "ERROR" || fields[0] == "KILL" {
+		} else if parsedMsg.Cmd == "ERROR" || parsedMsg.Cmd == "KILL" {
 			// Mensagens de ERROR significam que algo deu errado e o servidor fechou a conexão
 			// KILL significa que a conexão foi fechada por algum operador
 			// Logo, o cliente precisará se reconectar.
-			fmt.Println("[Fatal Error]", message)
+			fmt.Println("[Fatal Error]", parsedMsg.Params)
 			client.Socket.Close()
 			close(client.DataFromServer)
 			break

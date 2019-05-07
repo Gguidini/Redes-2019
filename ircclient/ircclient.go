@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/Redes-2019/connection"
 	"github.com/Redes-2019/userinterface"
@@ -16,23 +19,29 @@ func main() {
 	connSocket := connection.OpenSocket(conn)
 	// Criando cliente IRC
 	client := connection.NewClient(connSocket, user, conn)
+	go client.ListenServer()
 	// Conectando cliente ao servidor
-	ok := client.Connect()
-	if !ok {
-		fmt.Println("==> Encerrando.")
+	for !<-client.ConnectSuccess {
+		// Tenta autenticar com o servidor
+		client.Connect()
+		if <-client.NickInvalid {
+			fmt.Print("Nick inválido. Escolha outro: ")
+			nick, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+			nick = strings.TrimRight(nick, "\n")
+			client.UserInfo.Nick = nick
+		}
 	}
 
-	go client.ListenServer()
-	go listenUser(client)
 	fmt.Println("[info] Use /help to display available commands.")
-	ok = true
+	go listenUser(client)
+	ok := true
 	for ok {
 		select {
 		case msg, open := <-client.DataFromServer:
 			if !open {
 				ok = false
 			} else {
-				fmt.Println("RECEIVED:", msg)
+				fmt.Println(msg.PrintInfo, "<"+msg.Prefix+">", msg.Params)
 			}
 		case msg, _ := <-client.DataFromUser:
 			client.HandleConnection(msg)
