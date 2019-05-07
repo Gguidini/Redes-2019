@@ -21,13 +21,14 @@ type IrcClient struct {
 	DataFromServer chan Message
 	DataFromUser   chan []string
 	isAway         bool
+	DeadSocket     bool
 	ConnectSuccess chan bool
 	NickInvalid    chan bool
 }
 
 // NewClient retorna um novo IrcClient
 func NewClient(socket net.Conn, userInfo userinterface.User, connInfo userinterface.ConnInfo) *IrcClient {
-	c := &IrcClient{socket, userInfo, connInfo, make(chan Message, 100), make(chan []string, 100), false, make(chan bool, 1), make(chan bool, 1)}
+	c := &IrcClient{socket, userInfo, connInfo, make(chan Message, 100), make(chan []string, 100), false, false, make(chan bool, 1), make(chan bool, 1)}
 	c.ConnectSuccess <- false // Inicia conexão como não feita
 	return c
 }
@@ -38,13 +39,13 @@ func NewClient(socket net.Conn, userInfo userinterface.User, connInfo userinterf
 func OpenSocket(conn userinterface.ConnInfo) net.Conn {
 	// Servidor:Porta
 	connTarget := conn.Servername + ":" + strconv.Itoa(conn.Port)
-	fmt.Println("\n[info] Abrindo o socket TCP para", connTarget)
+	fmt.Println(userinterface.InfoTag+"Abrindo o socket TCP para", connTarget)
 	connSocket, err := net.Dial("tcp", connTarget)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("[ok] Conexão bem sucedida!")
+	fmt.Println(userinterface.OkTag + "Conexão bem sucedida!")
 	return connSocket
 }
 
@@ -54,7 +55,7 @@ func OpenSocket(conn userinterface.ConnInfo) net.Conn {
 // Autenticação é feita em 3 comandos:
 // 1. PASS 2. NICK 3. USER
 func (client *IrcClient) Connect() {
-	fmt.Println("[info] Autenticando com o servidor")
+	fmt.Println(userinterface.InfoTag + "Autenticando com o servidor")
 	// Inicialmente manda PASS, se for necessário
 	if client.connInfo.HasPasswd {
 		pass := passCmd(client.connInfo.Passwd)
@@ -92,8 +93,11 @@ func (client *IrcClient) ListenServer() {
 		// Lê algo do Socket
 		message, err := readSocket.ReadString('\n')
 		if err != nil {
-			fmt.Println("[Fatal Error]", err)
-			fmt.Println("[info] Fechando conexão")
+			fmt.Println(userinterface.ErrorTag, err)
+			fmt.Println(userinterface.WarnTag + "Fechando conexão")
+			client.DeadSocket = true
+			client.ConnectSuccess <- false
+			client.NickInvalid <- false
 			client.Socket.Close()
 			close(client.DataFromServer)
 			break
@@ -130,15 +134,16 @@ func (client *IrcClient) ListenServer() {
 			// Mensagens de ERROR significam que algo deu errado e o servidor fechou a conexão
 			// KILL significa que a conexão foi fechada por algum operador
 			// Logo, o cliente precisará se reconectar.
-			fmt.Println("[Fatal Error]", parsedMsg.Params)
+			fmt.Println(userinterface.ErrorTag, parsedMsg.Params)
 			client.Socket.Close()
 			close(client.DataFromServer)
+			client.DeadSocket = true
 			client.ConnectSuccess <- false
 			client.NickInvalid <- false
 			return
 		}
 	}
-	fmt.Println("[info] Stopped listening.")
+	fmt.Println(userinterface.WarnTag + "Stopped listening.")
 }
 
 // HandleConnection envia comandos para o servidor pelo socket.

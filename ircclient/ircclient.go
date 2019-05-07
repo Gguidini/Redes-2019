@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
 	"github.com/Redes-2019/connection"
-	"github.com/Redes-2019/userinterface"
 	"github.com/Redes-2019/tui"
+	"github.com/Redes-2019/userinterface"
 )
 
 func main() {
-	fmt.Println("==> Iniciando Cliente.")
+	fmt.Println(userinterface.InfoTag + "Iniciando Cliente.")
 	// Pega informacões de usuário
-	fmt.Println("==> Identificando usuário")
+	fmt.Println(userinterface.InfoTag + "Identificando usuário")
 	user, conn := userinterface.ReadUserData()
 	// Criando socket com o servidor
 	connSocket := connection.OpenSocket(conn)
@@ -25,17 +26,17 @@ func main() {
 		// Tenta autenticar com o servidor
 		client.Connect()
 		if <-client.NickInvalid {
-			fmt.Print("Nick inválido. Escolha outro: ")
+			fmt.Print(userinterface.WarnTag + "Nick inválido. Escolha outro: ")
 			nick, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 			nick = strings.TrimRight(nick, "\n")
 			client.UserInfo.Nick = nick
-		} else {
+		} else if client.DeadSocket {
 			// Neste ponto a conexão já foi fechada
 			return
 		}
 	}
 
-	fmt.Println("[info] Use /help to display available commands.")
+	fmt.Println(userinterface.InfoTag + "Use /help to display available commands.")
 	go listenUser(client)
 	ok := true
 	for ok {
@@ -51,7 +52,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("[info] Client disconnected. Terminating.")
+	fmt.Println(userinterface.InfoTag + "Client disconnected. Terminating.")
 }
 
 func listenUser(client *connection.IrcClient) {
