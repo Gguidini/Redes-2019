@@ -15,20 +15,21 @@ $ $GOPATH/src/github.com/
 
 A pasta Redes-2019 deve ser colocada na pasta *$GOPATH/src/github.com/*
 
+# Dependências
+
+O projeto utiliza o projeto marcusolsson/tui-go para implementacão da interface de terminal (TUI). É necessário baixar como dependência
+
+```
+$ go get github.com/marcusolsson/tui-go
+```
+
+
 ## Build
 
-Para compilar o projeto é necessário compilar cada pacote separadamente, e por fim rodar ou instalar o módulo principal, que é o **ircclient**. Assumindo que se esteja na pasta definida em $GOPATH, a compilacão de cada módulo é feita da seguinte forma:
-
-
-```
-$ go build github.com/Redes-2019/userinterface
-```
-
-Após compilados todos os módulos secundários pode-se rodar o programa principal:
+Para compilar o projeto é necessário compilar cada pacote separadamente, e por fim rodar ou instalar o módulo principal, que é o **ircclient**. Assumindo que se esteja na pasta definida em $GOPATH, é possível rodar o script de build automatizado.
 
 ```
-$ go run github.com/Redes-2019/ircclient
+$ ./run.sh
 ```
 
-(No futuro essa compilacão será feita através de um Makefile)
 
