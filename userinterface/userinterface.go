@@ -115,7 +115,7 @@ func validateCommand(command string) bool {
 	validCommands[13] = "/whois"
 	validCommands[14] = "/kick"
 	for _, item := range validCommands {
-		if item == command {
+		if item == command || len(command) == 0{
 			return true
 		}
 	}
