@@ -133,7 +133,9 @@ func (client *IrcClient) ListenServer() {
 			fmt.Println("[Fatal Error]", parsedMsg.Params)
 			client.Socket.Close()
 			close(client.DataFromServer)
-			break
+			client.ConnectSuccess <- false
+			client.NickInvalid <- false
+			return
 		}
 	}
 	fmt.Println("[info] Stopped listening.")

@@ -29,6 +29,9 @@ func main() {
 			nick, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 			nick = strings.TrimRight(nick, "\n")
 			client.UserInfo.Nick = nick
+		} else {
+			// Neste ponto a conexão já foi fechada
+			return
 		}
 	}
 
