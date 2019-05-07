@@ -12,7 +12,7 @@ import (
 
 func main() {
 	fmt.Println(userinterface.InfoTag + "Iniciando Cliente.")
-	// Pega informacões de usuário
+	// Pega informacões de usuário (nome, nick, server, etc)
 	fmt.Println(userinterface.InfoTag + "Identificando usuário")
 	user, conn := userinterface.ReadUserData()
 	// Criando socket com o servidor
@@ -25,12 +25,14 @@ func main() {
 		// Tenta autenticar com o servidor
 		client.Connect()
 		if <-client.NickInvalid {
+			// Caso recebe um erro com o nick pede outro
 			fmt.Print(userinterface.WarnTag + "Nick inválido. Escolha outro: ")
 			nick, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 			nick = strings.TrimRight(nick, "\n")
 			client.UserInfo.Nick = nick
 		} else if client.DeadSocket {
-			// Neste ponto a conexão já foi fechada
+			// Neste ponto a conexão já foi fechada pelo servidor
+			// Porque algum erro de autenticação aconteceu. e.g. senha incorreta
 			return
 		}
 	}
@@ -41,12 +43,14 @@ func main() {
 	for ok {
 		select {
 		case msg, open := <-client.DataFromServer:
+			// Mensagem foi recebida pelo servidor
 			if !open {
 				ok = false
 			} else {
 				fmt.Println(msg.PrintInfo, "<"+msg.Prefix+">", msg.Params)
 			}
 		case msg, _ := <-client.DataFromUser:
+			// Usuário digitou alguma mensagem
 			client.HandleConnection(msg)
 		}
 	}
@@ -54,6 +58,7 @@ func main() {
 	fmt.Println(userinterface.InfoTag + "Client disconnected. Terminating.")
 }
 
+// Pega input do usuário
 func listenUser(client *connection.IrcClient) {
 	channel := "> "
 	// Entra em loop para ler os comandos do usuário

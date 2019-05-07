@@ -79,6 +79,7 @@ func ReadUserData() (User, ConnInfo) {
 		pass = ""
 	}
 
+	// Pega o host que está rodando o cliente IRC
 	host, err := os.Hostname()
 	if err != nil {
 		host = "Unkown"
@@ -90,7 +91,6 @@ func ReadUserData() (User, ConnInfo) {
 }
 
 // Faz o parse do comando em um array de strings
-
 func parseCommand(command string) []string {
 	parsedString := strings.Split(command, " ")
 	return parsedString
@@ -116,14 +116,15 @@ func validateCommand(command string) bool {
 	validCommands[14] = "/kick"
 	validCommands[15] = "/clear"
 	for _, item := range validCommands {
-		if item == command || len(command) == 0{
+		if item == command || len(command) == 0 {
 			return true
 		}
 	}
 	return false
 }
 
-// Lê o comando recebido da main
+// ReadCommand lê o comando recebido do usuário
+// E retorna esse comando para a main
 func ReadCommand(channel string) []string {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -351,10 +352,11 @@ Necessário privilégios para o comando funcionar.
 		result = true
 	}
 
-
 	return result, err
 }
 
+// Mostra todos os comandos disponíveis no sistema,
+// A estrutura do comando, e sua funcionalidade.
 func displayHelp() {
 	availableCommands := []string{
 		"/help - Displays available commands",

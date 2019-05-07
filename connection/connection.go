@@ -1,12 +1,13 @@
+// Package connection gerencia a conexão com o servidor
 package connection
 
 import (
 	"bufio"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"strings"
-	"os"
 
 	"github.com/Redes-2019/userinterface"
 )
@@ -15,6 +16,7 @@ import (
 // Ele possui um socket TCP ligado ao servidor IRC
 // E as informações de conexão e usuário.
 // Também possui channels de input e output
+// E flags de estado
 type IrcClient struct {
 	Socket         net.Conn
 	UserInfo       userinterface.User
@@ -91,11 +93,12 @@ func (client *IrcClient) ListenServer() {
 	// Socket, buffer de leitura
 	readSocket := bufio.NewReader(client.Socket)
 	for {
-		// Lê algo do Socket
+		// Lê mensagem recebida pelo Socket
 		message, err := readSocket.ReadString('\n')
 		if err != nil {
 			fmt.Println(userinterface.ErrorTag, err)
 			fmt.Println(userinterface.WarnTag + "Fechando conexão")
+			// Clean up
 			client.DeadSocket = true
 			client.ConnectSuccess <- false
 			client.NickInvalid <- false
@@ -103,10 +106,10 @@ func (client *IrcClient) ListenServer() {
 			close(client.DataFromServer)
 			break
 		}
+		// Formata a mensagem recebida
 		parsedMsg := parseMessage(message)
-		// Mensages que iniciam com prefixo não são erros, então são mostradas
-		// Mensagens cujo prefixo é o Nickname foram enviadas por nós.
-
+		// Mensages que iniciam com prefixo não são erros, então são mostradas.
+		// A mensagem de PING é para controle, não precisa ser mostrada
 		if parsedMsg.Cmd != "PING" && parsedMsg.Cmd != "ERROR" {
 			client.DataFromServer <- parsedMsg
 		}
@@ -115,11 +118,11 @@ func (client *IrcClient) ListenServer() {
 		if parsedMsg.Cmd[0] >= ' ' && parsedMsg.Cmd[0] <= '9' {
 			// Check for specific responses to set flags
 			switch parsedMsg.Cmd {
-			// Some Nick Error
+			// Some Nick Error - Auth failed
 			case erroneusNick, errNickCollision, errNickUsed:
 				client.ConnectSuccess <- false
 				client.NickInvalid <- true
-			// Welcome Messages
+			// Welcome Messages - Auth was completed!
 			case welcomeHeader1:
 				client.ConnectSuccess <- true
 				client.NickInvalid <- false
@@ -151,6 +154,7 @@ func (client *IrcClient) ListenServer() {
 // Os comandos são inseridos pelo usuário.
 func (client *IrcClient) HandleConnection(command []string) {
 	var cmdToSend string
+	// Verifica qual comando será enviado
 	switch strings.ToLower(command[0]) {
 	case "/join":
 		if len(command) == 3 {
@@ -167,10 +171,8 @@ func (client *IrcClient) HandleConnection(command []string) {
 		cmdToSend = quitCmd(cmdToSend)
 	case "/list":
 		if len(command) >= 2 {
-			// Channel e Key
 			cmdToSend = listCmd(command[1])
 		} else {
-			// Just Channel
 			cmdToSend = listCmd("")
 		}
 	case "/msg":
@@ -216,8 +218,8 @@ func (client *IrcClient) HandleConnection(command []string) {
 			cmdToSend = kickCmd(command[1], command[2], command[3:])
 		}
 	case "/clear":
-			fmt.Println("test")
-			os.Stdout.WriteString("\x1b[3;J\x1b[H\x1b[2J")
+		fmt.Println("test")
+		os.Stdout.WriteString("\x1b[3;J\x1b[H\x1b[2J")
 	}
 
 	client.Socket.Write([]byte(cmdToSend))

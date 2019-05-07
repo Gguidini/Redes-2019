@@ -1,7 +1,10 @@
+// Formatação dos comandos no padrão IRC (rfc 1459)
+// https://tools.ietf.org/html/rfc1459#section-4.2.6
 package connection
 
 import "strings"
 
+// CRLF é o marcador de final de mensagem
 const CRLF = "\r\n"
 
 func pongCmd(target string) string {

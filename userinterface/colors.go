@@ -1,9 +1,16 @@
+// Some color codes to print things nicely
 package userinterface
 
-// Some color codes to print things nicely
+// InfoTag is colored cyan for info messages
 const InfoTag = cyan + "[info] " + reset
+
+// OkTag is colored green for OK messages
 const OkTag = green + "[ok] " + reset
+
+// ErrorTag is colored black and red for errors
 const ErrorTag = backRed + black + "[Fatal Error] " + reset
+
+// WarnTag is colored yellow for warnings
 const WarnTag = yellow + "[Warn] " + reset
 
 // Foreground
