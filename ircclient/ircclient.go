@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Redes-2019/connection"
-	"github.com/Redes-2019/tui"
+	// "github.com/Redes-2019/tui"
 	"github.com/Redes-2019/userinterface"
 )
 
@@ -56,6 +56,19 @@ func main() {
 }
 
 func listenUser(client *connection.IrcClient) {
-	// Inicia as funcões da TUI
-	tui.TuiHandler(client)
+	channel := "> "
+	// Entra em loop para ler os comandos do usuário
+	for {
+		command := userinterface.ReadCommand(channel)
+		if command == nil {
+			fmt.Println("[Input error] comando invalido")
+		} else {
+			validStructure, err := userinterface.VerifyStructure(command)
+			if validStructure == false {
+				fmt.Println(err)
+			} else {
+				client.DataFromUser <- command
+			}
+		}
+	}
 }

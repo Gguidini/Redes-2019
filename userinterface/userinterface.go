@@ -123,13 +123,13 @@ func validateCommand(command string) bool {
 }
 
 // Lê o comando recebido da main
-func ReadCommand(command string) []string {
-	// reader := bufio.NewReader(os.Stdin)
+func ReadCommand(channel string) []string {
+	reader := bufio.NewReader(os.Stdin)
 
 	// Imprime o canal que o usuário se encontra,
 	// ou nenhum se ele não está num canal
-	// fmt.Print(channel)
-	// command, _ := reader.ReadString('\n')
+	fmt.Print("> ")
+	command, _ := reader.ReadString('\n')
 	command = strings.TrimRight(command, "\r\n")
 	parsedCommand := parseCommand(command)
 	isValid := validateCommand(strings.ToLower(parsedCommand[0]))
