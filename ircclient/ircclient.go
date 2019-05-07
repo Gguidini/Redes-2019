@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
 	"github.com/Redes-2019/connection"
 	"github.com/Redes-2019/userinterface"
+	"github.com/Redes-2019/tui"
 )
 
 func main() {
@@ -55,20 +55,6 @@ func main() {
 }
 
 func listenUser(client *connection.IrcClient) {
-	channel := "> "
-	// Entra em loop para ler os comandos do usuário
-	for {
-		command := userinterface.ReadCommand(channel)
-		if command == nil {
-			fmt.Println("[Input error] comando invalido")
-		} else {
-			validStructure, err := userinterface.VerifyStructure(command)
-			if validStructure == false {
-				fmt.Println(err)
-			} else {
-				client.DataFromUser <- command
-			}
-
-		}
-	}
+	// Inicia as funcões da TUI
+	tui.TuiHandler(client)
 }

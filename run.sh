@@ -11,7 +11,7 @@
 #	--install - gera um executável 'ircclient'
 
 SRCDIR=$GOPATH/src/github.com/Redes-2019
-OBJDIRS="userinterface connection"
+OBJDIRS="userinterface connection tui"
 
 for dir in $OBJDIRS ; do
 	echo "Compilando $dir"
