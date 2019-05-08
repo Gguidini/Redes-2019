@@ -13,6 +13,15 @@ const ErrorTag = backRed + black + "[Fatal Error] " + reset
 // WarnTag is colored yellow for warnings
 const WarnTag = yellow + "[Warn] " + reset
 
+// MsgOrigin is source of message
+const MsgOrigin = blue
+
+// CmdOrigin is command that gennerated the message
+const CmdOrigin = magenta
+
+// Resets print style
+const Reset = "\u001b[0m"
+
 // Foreground
 const black = "\u001b[30m"
 const red = "\u001b[31m"

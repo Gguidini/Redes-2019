@@ -49,7 +49,10 @@ func main() {
 				// E podemos encerrar o programa
 				ok = false
 			} else {
-				fmt.Println(msg.PrintInfo, "<"+msg.Prefix+">", msg.Params)
+				fmt.Println(
+					userinterface.CmdOrigin+msg.PrintInfo,
+					userinterface.MsgOrigin+"<"+msg.Prefix+">",
+					userinterface.Reset+msg.Params)
 			}
 		case msg, _ := <-client.DataFromUser:
 			// Usuário digitou alguma mensagem
